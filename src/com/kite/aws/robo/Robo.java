@@ -74,7 +74,17 @@ public class Robo extends TimerTask {
 				int length = array.length;
 				printArray(array);
 				
-				if (positionCheck()) {
+				boolean on = roboOnOrOff();
+				
+				if (on == false) {
+					ROBO_LOGGER.info("Robo is off...");
+					return;
+				}
+				boolean pos = positionCheck();
+				if (pos == false) {
+					ROBO_LOGGER.info("There are open positions....so skiping candle formation");
+					return;
+				}
 					boolean excludeCheck = excludeCheck((int)nifty.getLtp());
 					if (excludeCheck) {
 						boolean upFirstMin = false;
@@ -158,11 +168,6 @@ public class Robo extends TimerTask {
 					} else {
 						ROBO_LOGGER.info("Last two digits of nifty are in exclude list : " + ((int)nifty.getLtp()));
 					}
-					
-				
-				} else {
-					ROBO_LOGGER.info("There are open positions....so skiping candle formation");
-				}
 				
 			} else {
 				ROBO_LOGGER.info("Fatal : Quote from RoboUtil.getNiftyQuote() is null or not correct");
@@ -264,7 +269,11 @@ public class Robo extends TimerTask {
 	}
 	
 	private static boolean positionCheck() {
-		return ((RoboStore.order == null) && (!RoboStore.direction.equals("off")));
+		return RoboStore.order == null;
+	}
+	
+	private static boolean roboOnOrOff() {
+		return ((!RoboStore.direction.equals("")) && (!RoboStore.direction.equalsIgnoreCase("off")));
 	}
 	
 	private boolean excludeCheck(int nifty) {
